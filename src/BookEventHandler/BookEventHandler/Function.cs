@@ -1,9 +1,7 @@
-using System.Text;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.S3.Transfer;
 
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -43,41 +41,8 @@ public class Function
 
     private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
     {
-        context.Logger.LogInformation($"Processed message {message.Body}");
+        context.Logger.LogInformation($"Start of processing of message {message.MessageId}");
 
         await _messageUploadService.UploadAsync(message, context);
-    }
-}
-
-public class EventMessageUploadService
-{
-    private readonly IAmazonS3 _amazonS3;
-
-    public EventMessageUploadService(IAmazonS3 amazonS3)
-    {
-        _amazonS3 = amazonS3;
-    }
-
-    public async Task UploadAsync(SQSEvent.SQSMessage message, ILambdaContext context)
-    {
-        try
-        {
-            var transferUtility = new TransferUtility(_amazonS3);
-
-            var bytes = Encoding.UTF8.GetBytes(message.Body);
-            using var memoryStream = new MemoryStream(bytes);
-
-            await transferUtility.UploadAsync(new TransferUtilityUploadRequest
-            {
-                Key = message.MessageId,
-                BucketName = "event-messages",
-                ContentType = "text/json",
-                InputStream = memoryStream
-            });
-        }
-        catch (Exception ex)
-        {
-            context.Logger.LogError(ex.Message);
-        }
     }
 }
