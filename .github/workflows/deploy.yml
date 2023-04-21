@@ -49,7 +49,7 @@ jobs:
         run: zip -qq -r ../BookEventHandler.zip .
         working-directory: artifact/publish
 
-      - uses: action/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
           name: lambda
           path: ./artifact
