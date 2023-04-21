@@ -9,3 +9,6 @@ Resources:
     Properties:
       AccessControl: PublicRead
       BucketName: lambda-code-storage-316407933015
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
