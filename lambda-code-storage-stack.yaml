@@ -7,8 +7,10 @@ Resources:
   LambdaCodeStorage:
     Type: 'AWS::S3::Bucket'
     Properties:
-      AccessControl: PublicRead
       BucketName: lambda-code-storage-316407933015
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership: BucketOwnerEnforced
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
