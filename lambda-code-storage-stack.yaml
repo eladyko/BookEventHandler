@@ -1,0 +1,11 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  License: Apache-2.0
+Description: 'AWS S3 stack for lambda code storage'
+
+Resources:
+  LambdaCodeStorage:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      BucketName: lambda-code-storage-316407933015

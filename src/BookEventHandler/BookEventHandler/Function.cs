@@ -1,7 +1,6 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Amazon.S3;
-using Amazon.S3.Model;
 
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.

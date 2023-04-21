@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  License: Apache-2.0
+Description: 'AWS Lambda stack for onboarding task'
+
+Parameters:
+  SourceZipPath:
+    Type: String
+    Default: 'src\BookEventHandler\publish\BookEventHandler.zip'
+
+Resources:
+  EventStorage:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      BucketName: event-storage-316407933015
+
+  EventHandlerServerless:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: lambda-code-storage-316407933015
+        S3Key: BookEventHandler.zip
+      FunctionName: 'event-handler-function'
+      Handler: BookEventHandler::BookEventHandler.Function::FunctionHandler
+      Runtime: dotnet6
+      MemorySize: 128
+      Timeout: 10
+      Role: !GetAtt HandlerRole.Arn
+
+  EventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties: 
+      BatchSize: 1
+      Enabled: true
+      EventSourceArn: !GetAtt ChangesQueue.Arn
+      FunctionName: !GetAtt EventHandlerServerless.FunctionName
+
+  HandlerRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: 'lambda-execution-policy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
+              - Effect: Allow
+                Action:
+                  - 's3:PutObject'
+                Resource: !GetAtt EventStorage.Arn

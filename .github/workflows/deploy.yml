@@ -1,0 +1,66 @@
+name: 'Deploy Lambda to AWS CloudFormation'
+
+on: 
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # This workflow contains a single job called "deploy"
+  deploy:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout code from main branch
+        uses: actions/checkout@v3
+
+      # Configure AWS Credential
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      # Deploy S3 to AWS CloudFormation
+      - name: Deploy S3 to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: lambda-code-storage-stack
+          template: lambda-code-storage-stack.yaml
+          no-fail-on-empty-changeset: "1"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Publish
+        run: dotnet publish --no-self-contained --runtime linux-x64 --configuration Release --output ./artifact/publish ./BookEventHandler/src/BookEventHandler/BookEventHandler/BookEventHandler.csproj
+      - name: Install zip
+        uses: montudor/action-zip@v1
+      - name: Zip
+        run: zip -qq -r ../BookEventHandler.zip .
+        working-directory: artifact/publish
+
+      - uses: action/upload-artifact@v3
+        with:
+          name: lambda
+          path: ./artifact
+
+      - name: Upload to S3
+        run: aws s3 cp ./artifact/BookEventHandler.zip s3://lambda-code-storage-316407933015 
+
+      # Deploy Lambda to AWS CloudFormation
+      - name: Deploy Lambda function to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: onboarding-lambda-stack
+          template: lambda-stack.yaml
+          no-fail-on-empty-changeset: "1"
