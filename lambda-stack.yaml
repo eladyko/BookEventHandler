@@ -69,3 +69,10 @@ Resources:
                 Action:
                   - 's3:PutObject'
                 Resource: !GetAtt EventStorage.Arn
+              - Effect: Allow
+                Action:
+                  - 'sqs:ReceiveMessage'
+                  - 'sqs:DeleteMessage'
+                  - 'sqs:GetQueueAttributes'
+                Resource:
+                  Fn::ImportValue: 'onboarding-stack-ChangesQueueArn'
