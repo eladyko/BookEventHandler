@@ -41,9 +41,7 @@ Resources:
       EventSourceArn: 
         Fn::ImportValue: 'onboarding-stack-ChangesQueueArn'
       FunctionName:
-        Fn::GetAtt:
-        - "LambdaFunction"
-        - "Arn"
+        !Ref EventHandlerServerless
 
   HandlerRole:
     Type: 'AWS::IAM::Role'
