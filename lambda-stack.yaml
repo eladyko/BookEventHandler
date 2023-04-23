@@ -12,8 +12,13 @@ Resources:
   EventStorage:
     Type: 'AWS::S3::Bucket'
     Properties:
-      AccessControl: PublicRead
       BucketName: event-storage-316407933015
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
 
   EventHandlerServerless:
     Type: 'AWS::Lambda::Function'
