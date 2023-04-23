@@ -33,7 +33,8 @@ Resources:
     Properties: 
       BatchSize: 1
       Enabled: true
-      EventSourceArn: Fn::ImportValue: onboarding-stack.ChangesQueueArn
+      EventSourceArn: 
+        Fn::ImportValue: 'onboarding-stack.ChangesQueueArn'
       FunctionName: !GetAtt EventHandlerServerless.FunctionName
 
   HandlerRole:
