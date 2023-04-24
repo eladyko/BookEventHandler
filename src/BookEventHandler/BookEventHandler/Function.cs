@@ -34,9 +34,12 @@ public class Function
     /// <returns></returns>
     public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
     {
-        foreach(var message in evnt.Records)
+        if (evnt.Records != null && evnt.Records.Any())
         {
-            await ProcessMessageAsync(message, context);
+            foreach (var message in evnt.Records)
+            {
+                await ProcessMessageAsync(message, context);
+            }
         }
     }
 
