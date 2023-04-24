@@ -1,6 +1,7 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Amazon.S3;
+using Microsoft.Extensions.Options;
 
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -19,7 +20,8 @@ public class Function
     /// </summary>
     public Function()
     {
-        _messageUploadService = new EventMessageUploadService(new AmazonS3Client());
+        _messageUploadService = new EventMessageUploadService(new AmazonS3Client(),
+            Options.Create(new S3Bucket { Name = "event-storage-316407933015" }));
     }
 
 

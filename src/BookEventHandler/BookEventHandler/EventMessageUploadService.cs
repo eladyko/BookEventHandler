@@ -3,16 +3,19 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Amazon.S3;
 using Amazon.S3.Transfer;
+using Microsoft.Extensions.Options;
 
 namespace BookEventHandler;
 
 public class EventMessageUploadService
 {
     private readonly IAmazonS3 _amazonS3;
+    private readonly IOptions<S3Bucket> _configuration;
 
-    public EventMessageUploadService(IAmazonS3 amazonS3)
+    public EventMessageUploadService(IAmazonS3 amazonS3, IOptions<S3Bucket> configuration)
     {
         _amazonS3 = amazonS3;
+        _configuration = configuration;
     }
 
     public async Task UploadAsync(SQSEvent.SQSMessage message, ILambdaContext context)
@@ -27,7 +30,7 @@ public class EventMessageUploadService
             await transferUtility.UploadAsync(new TransferUtilityUploadRequest
             {
                 Key = message.MessageId,
-                BucketName = "event-messages",
+                BucketName = _configuration.Value.Name,
                 ContentType = "text/json",
                 InputStream = memoryStream
             });
